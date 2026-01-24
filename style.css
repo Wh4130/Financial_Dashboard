@@ -1,0 +1,52 @@
+/* --- Basic Statistics ---*/
+.centering-container {
+    display: flex;
+    flex-direction: column; /* 確保內容在垂直方向上對齊 */
+    justify-content: center; /* 垂直居中對齊 (控制主軸) */
+    align-items: center;     /* 水平居中對齊 (控制交叉軸) */
+    
+    /* 關鍵：必須有足夠的高度才能進行垂直居中 */
+    /* 這裡假設 st.container() 預期的高度為 200px (請根據您的卡片實際高度調整) */
+    min-height: 100px; 
+    width: 100%;
+}
+.data-pair-container {
+    display: flex;
+    /* 新增：將容器內所有子元素在垂直方向（交叉軸）上居中對齊 */
+    align-items: center; 
+    
+    /* 原有樣式 */
+    justify-content: space-around; 
+    width: 100%;
+    height: 100%;
+    text-align: center;
+}
+.data-block {
+    display: flex;
+    flex-direction: column; /* 數字和標籤垂直堆疊 */
+    align-items: center;    /* 垂直對齊時，確保內容居中 */
+}
+.data-number {
+    font-size: 1.5em; /* 讓數字更大更顯眼 */
+    font-weight: bold;
+}
+.data-number.filtered {
+    color: #4747ad;
+}
+.data-number.source {
+    color: #023332
+}
+.data-number.found {
+    color: #4747ad;
+    font-size: 2.2em
+}
+.data-number.date {
+    color: #326da8
+}
+.data-label {
+    font-size: 0.8em;
+    color: #666; /* 讓標籤顏色稍微淡一點 */
+}
+.data-label.time {
+    font-size: 1em;
+}
