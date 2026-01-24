@@ -87,6 +87,7 @@ class LoadData:
                     'volume': 'Trading_Volume'
                 })
         
+        data_mon.to_csv('tej.csv')
 
         return data_mon
     

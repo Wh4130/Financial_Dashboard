@@ -25,7 +25,7 @@ try:
     # data = LoadData.load_from_finmind(dt.datetime.today().date())
 except Exception as e:
     st.error(f"Error loading data: {e}")
-    tej_data = LoadData.load_from_csv('finmind_etf_20250101_20250123.csv')
+    tej_data = LoadData.load_from_csv('tej.csv')
 
 try:
     finmind_data = LoadData.load_from_finmind(dt.datetime.today().date())
