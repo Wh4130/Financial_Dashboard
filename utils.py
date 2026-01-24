@@ -15,7 +15,6 @@ from constants import stocks
 from FinMind.data import DataLoader
 import tejapi
 
-from dotenv import dotenv_values
 import pandas as pd
 import datetime as dt
 import streamlit as st
