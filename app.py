@@ -83,7 +83,7 @@ def top_kbar(df):
      .groupby("stock_id")
      .apply(calculate_change, include_groups = False)
     )
-    top5 = changes.sort_values(ascending=False).head(5)
+    top5 = changes.sort_values(by = 'close', ascending=False).head(5)
 
     st.subheader("最近一日漲幅前五名股票 K 線圖")
     with st.container(border = True):
