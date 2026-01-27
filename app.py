@@ -71,7 +71,10 @@ def calculate_change(group):
     # 檢查是否有足夠的資料列
     if len(group) < 2:
         return None 
-    return (group.iloc[1]['close'] - group.iloc[0]['close']) / group.iloc[0]['close'] * 100
+    return {
+        "stock_id": group.name,
+        "change": (group.iloc[1]['close'] - group.iloc[0]['close']) / group.iloc[0]['close'] * 100
+    }
 
 @st.fragment
 def top_kbar(df):
@@ -83,7 +86,7 @@ def top_kbar(df):
      .groupby("stock_id")
      .apply(calculate_change, include_groups = False)
     )
-    top5 = changes.sort_values(ascending=False).head(5)
+    top5 = changes.sort_values(by = 'change', scending=False).head(5)
 
     st.subheader("最近一日漲幅前五名股票 K 線圖")
     with st.container(border = True):
