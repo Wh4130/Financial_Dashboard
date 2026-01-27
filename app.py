@@ -72,8 +72,8 @@ def calculate_change(group):
     if len(group) < 2:
         return None 
     return pd.DataFrame({
-        "stock_id": group.name,
-        "change": (group.iloc[1]['close'] - group.iloc[0]['close']) / group.iloc[0]['close'] * 100
+        "stock_id": [group.name],
+        "change": [(group.iloc[1]['close'] - group.iloc[0]['close']) / group.iloc[0]['close'] * 100]
     })
 
 @st.fragment
