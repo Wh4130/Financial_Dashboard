@@ -71,16 +71,15 @@ def calculate_change(group):
     # 檢查是否有足夠的資料列
     if len(group) < 2:
         return None 
-    return {
+    return pd.DataFrame({
         "stock_id": group.name,
         "change": (group.iloc[1]['close'] - group.iloc[0]['close']) / group.iloc[0]['close'] * 100
-    }
+    })
 
 @st.fragment
 def top_kbar(df):
     df['date'] = pd.to_datetime(df['date'])
-    most_recents = (df[df['date'] > df['date'].max() - pd.Timedelta(days=2)]
-                    .sort_values(by=['stock_id', 'date'], ascending=True)
+    most_recents = (df.sort_values(by=['stock_id', 'date'], ascending=True)
                     )
     st.write(most_recents)
     changes = (most_recents
