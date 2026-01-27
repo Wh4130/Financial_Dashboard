@@ -81,18 +81,18 @@ def top_kbar(df):
     df['date'] = pd.to_datetime(df['date'])
     most_recents = (df.sort_values(by=['stock_id', 'date'], ascending=True)
                     )
-    st.write(most_recents)
     changes = (most_recents
      .groupby("stock_id")
      .apply(calculate_change, include_groups = False)
+     .reset_index(drop=True)
     )
-    st.write(changes)
+
     top5 = changes.sort_values(by = 'change', ascending=False).head(5)
 
     st.subheader("最近一日漲幅前五名股票 K 線圖")
     with st.container(border = True):
         cols = st.columns((0.2, 0.2, 0.2, 0.2, 0.2))
-    for stock_id, col in zip(top5.index, cols):
+    for stock_id, col in zip(top5['stock_id'], cols):
 
         fig = make_subplots(specs=[[{"secondary_y": True}]])
         stock_data = most_recents[(most_recents['stock_id'] == stock_id) & (most_recents['date'] == most_recents['date'].max())]
