@@ -4,6 +4,7 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import streamlit as st
 import datetime as dt
+from zoneinfo import ZoneInfo
 
 from utils import LoadData
 from constants import stocks
@@ -21,14 +22,14 @@ with open("style.css") as style_sheet:
 # ------------------------------------------------------------------------------------------------------
 # * Load Data
 try:
-    tej_data = LoadData.load_from_tej(dt.datetime.today().date())
+    tej_data = LoadData.load_from_tej(dt.datetime.now(ZoneInfo("Asia/Taipei")).date())
     # data = LoadData.load_from_finmind(dt.datetime.today().date())
 except Exception as e:
     st.error(f"Error loading data: {e}")
     tej_data = LoadData.load_from_csv('tej.csv')
 
 try:
-    finmind_data = LoadData.load_from_finmind(dt.datetime.today().date())
+    finmind_data = LoadData.load_from_finmind(dt.datetime.now(ZoneInfo("Asia/Taipei")).date())
 except Exception as e:
     st.error(f"Error loading data: {e}")
     finmind_data = LoadData.load_from_csv('finmind_etf_20250101_20250123.csv')
