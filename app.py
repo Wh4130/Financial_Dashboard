@@ -67,6 +67,12 @@ with cols[2].container(border = True, height=100):
 
 # ------------------------------------------------------------------------------------------------------
 # * Top 5 Gainers K Bar (one day)
+def calculate_change(group):
+    # 檢查是否有足夠的資料列
+    if len(group) < 2:
+        return None 
+    return (group.iloc[1]['close'] - group.iloc[0]['close']) / group.iloc[0]['close'] * 100
+
 @st.fragment
 def top_kbar(df):
     df['date'] = pd.to_datetime(df['date'])
@@ -75,7 +81,7 @@ def top_kbar(df):
                     )
     changes = (most_recents
      .groupby("stock_id")
-     .apply(lambda group: (group.iloc[1]['close'] - group.iloc[0]['close']) / group.iloc[0]['close'] * 100)
+     .apply(calculate_change, include_groups = False)
     )
     top5 = changes.sort_values(ascending=False).head(5)
 
@@ -147,7 +153,11 @@ def single_kbar(df):
 
         if "成交量"  in opts:
 
-            fig.add_trace(go.Bar(x=df['date'], y=df['Trading_Volume'], marker_color="#7DACEE", name='Volume', opacity =0.5), secondary_y=False)
+            fig.add_trace(go.Bar(x=df['date'], 
+                                 y=df['Trading_Volume'], 
+                                 marker_color="#7DACEE", 
+                                 name='Volume', 
+                                 opacity =0.5), secondary_y=False)
 
         if "價格 K 線" in opts:
             fig.add_trace(go.Candlestick(

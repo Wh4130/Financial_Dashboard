@@ -58,11 +58,8 @@ class LoadData:
         """ 
         輸入當日日期，回傳特定 ETF 與 0050 前 10 大成分股之近一年每日股價資料 DataFrame
         """
-
         from dotenv import dotenv_values
-        # tejapi.ApiConfig.api_key = dotenv_values(".env")['TEJ_APIKEY2']
         tejapi.ApiConfig.api_key = st.secrets['TEJ_APIKEY2']
-
 
         # * 使用上市(櫃)未調整股價(日) API，取得一年內股票每日股價資料
         data_mon = tejapi.get("TRAIL/TAPRCD", 
@@ -75,8 +72,7 @@ class LoadData:
                             ]
                         },
                         paginate = True)
-        
-        
+
         data_mon = data_mon.rename(columns = {
                     'coid': 'stock_id',
                     'mdate': 'date',
@@ -87,8 +83,6 @@ class LoadData:
                     'volume': 'Trading_Volume'
                 })
         
-        data_mon.to_csv('tej.csv')
-
         return data_mon
     
 
