@@ -82,6 +82,7 @@ def top_kbar(df):
     most_recents = (df[df['date'] > df['date'].max() - pd.Timedelta(days=2)]
                     .sort_values(by=['stock_id', 'date'], ascending=True)
                     )
+    st.write(most_recents)
     changes = (most_recents
      .groupby("stock_id")
      .apply(calculate_change, include_groups = False)
