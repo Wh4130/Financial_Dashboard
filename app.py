@@ -86,6 +86,7 @@ def top_kbar(df):
      .groupby("stock_id")
      .apply(calculate_change, include_groups = False)
     )
+    st.write(changes)
     top5 = changes.sort_values(by = 'change', ascending=False).head(5)
 
     st.subheader("最近一日漲幅前五名股票 K 線圖")
