@@ -1,4 +1,4 @@
-stocks = {
+tw_stocks = {
     "0050": "元大台灣50",
     "0056": "元大高股息",
     "006208": "富邦台灣50",
@@ -62,4 +62,49 @@ stocks = {
     "2615": "萬海",
     "6505": "台塑化",
     "4746": "台泥"
+}
+
+
+# DAX 40 constituents (Yahoo Finance tickers)
+stocks = {
+    "ADS.DE": "Adidas",
+    "AIR.DE": "Airbus",
+    "ALV.DE": "Allianz",
+    "BAS.DE": "BASF",
+    "BAYN.DE": "Bayer",
+    "BEI.DE": "Beiersdorf",
+    "BMW.DE": "BMW",
+    "BNR.DE": "Brenntag",
+    "CBK.DE": "Commerzbank",
+    "CON.DE": "Continental",
+    "DB1.DE": "Deutsche Börse",
+    "DBK.DE": "Deutsche Bank",
+    "DHL.DE": "DHL Group",
+    "DTE.DE": "Deutsche Telekom",
+    "DTG.DE": "Daimler Truck",
+    "ENR.DE": "Siemens Energy",
+    "EOAN.DE": "E.ON",
+    "FME.DE": "Fresenius Medical Care",
+    "FRE.DE": "Fresenius",
+    "HEI.DE": "Heidelberg Materials",
+    "HEN3.DE": "Henkel",
+    "HNR1.DE": "Hannover Rück",
+    "IFX.DE": "Infineon",
+    "MBG.DE": "Mercedes-Benz",
+    "MRK.DE": "Merck KGaA",
+    "MTX.DE": "MTU Aero Engines",
+    "MUV2.DE": "Munich Re",
+    "P911.DE": "Porsche AG",
+    "PAH3.DE": "Porsche SE",
+    "QIA.DE": "Qiagen",
+    "RHM.DE": "Rheinmetall",
+    "RWE.DE": "RWE",
+    "SAP.DE": "SAP",
+    "SHL.DE": "Siemens Healthineers",
+    "SIE.DE": "Siemens",
+    "SRT3.DE": "Sartorius",
+    "SY1.DE": "Symrise",
+    "VNA.DE": "Vonovia",
+    "VOW3.DE": "Volkswagen",
+    "ZAL.DE": "Zalando",
 }

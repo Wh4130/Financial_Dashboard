@@ -12,10 +12,14 @@ except Exception:
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
-from constants import stocks
+from constants import stocks, tw_stocks
 
 from FinMind.data import DataLoader
+from loguru import logger
+
+logger.disable("FinMind")  # silence FinMind's per-stock INFO logs
 import tejapi
+import yfinance as yf
 
 import pandas as pd
 import datetime as dt
@@ -38,7 +42,7 @@ class LoadData:
         api.login_by_token(api_token = st.secrets['FINMIND_APIKEY'])
 
         data = pd.DataFrame()
-        for stock in stocks.keys():
+        for stock in tw_stocks.keys():
             df = api.taiwan_stock_daily(
                 stock_id = stock,
                 start_date = (today - dt.timedelta(days=366)).strftime("%Y-%m-%d"),
@@ -54,19 +58,53 @@ class LoadData:
 
     @staticmethod
     @st.cache_data(persist = 'disk')
+    def load_from_yfinance(today: dt.date) -> pd.DataFrame:
+        """
+        Given today's date, return a DataFrame of daily prices for the DAX 40 stocks over the past year (same columns as the FinMind version)
+        """
+        raw = yf.download(
+            list(stocks.keys()),
+            start = (today - dt.timedelta(days=366)).strftime("%Y-%m-%d"),
+            end = (today + dt.timedelta(days=1)).strftime("%Y-%m-%d"),  # end is exclusive
+            group_by = 'ticker',
+            auto_adjust = False,
+            progress = False,
+        )
+
+        data = (raw.stack(level = 0, future_stack = True)
+                .rename_axis(['date', 'stock_id'])
+                .reset_index()
+                .dropna(subset = ['Close'])
+                .rename(columns = {
+                    'Open': 'open',
+                    'High': 'max',
+                    'Low': 'min',
+                    'Close': 'close',
+                    'Volume': 'Trading_Volume'
+                })
+                [['stock_id', 'date', 'open', 'max', 'min', 'close', 'Trading_Volume']]
+                )
+        data['date'] = pd.to_datetime(data['date'])
+        data['Trading_Volume'] = data['Trading_Volume'] / 1000
+
+        return data
+
+
+    @staticmethod
+    @st.cache_data(persist = 'disk')
     def load_from_tej(today: dt.date) -> pd.DataFrame:
         """ 
-        輸入當日日期，回傳特定 ETF 與 0050 前 10 大成分股之近一年每日股價資料 DataFrame
+        Given today's date, return a DataFrame of daily prices over the past year for selected Taiwan ETFs and the top 10 holdings of 0050
         """
         from dotenv import dotenv_values
         tejapi.ApiConfig.api_key = st.secrets['TEJ_APIKEY2']
 
-        # * 使用上市(櫃)未調整股價(日) API，取得一年內股票每日股價資料
+        # * Use the TWSE/TPEx unadjusted daily price API to get one year of daily prices
         data_mon = tejapi.get("TRAIL/TAPRCD", 
                         mdate = {'gte': (today - dt.timedelta(days=366)).strftime("%Y-%m-%d"),
                                  'lte': today.strftime("%Y-%m-%d")
                                  },
-                        coid = list(stocks.keys()),            # 使用 coid 欄位篩選股票。stocks 為預先定義之股票代碼列表。
+                        coid = list(tw_stocks.keys()),            # Filter by coid; tw_stocks is the predefined stock list.
                         opts = {'columns': [
                             'coid', 'mdate', 'open_d', 'high_d', 'low_d', 'close_d', 'volume'
                             ]

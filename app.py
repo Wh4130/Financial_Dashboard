@@ -10,7 +10,7 @@ from utils import LoadData
 from constants import stocks
 
 st.set_page_config(
-    page_title = "Taiwan ETFs Dashboard",
+    page_title = "DAX 40 Dashboard",
     page_icon = "🧊",
     layout = "wide",
     initial_sidebar_state = "expanded"
@@ -22,37 +22,30 @@ with open("style.css") as style_sheet:
 # ------------------------------------------------------------------------------------------------------
 # * Load Data
 try:
-    tej_data = LoadData.load_from_tej(dt.datetime.now(ZoneInfo("Asia/Taipei")).date())
-    # data = LoadData.load_from_finmind(dt.datetime.today().date())
+    data = LoadData.load_from_yfinance(dt.datetime.now(ZoneInfo("Europe/Berlin")).date())
 except Exception as e:
     st.error(f"Error loading data: {e}")
-    tej_data = LoadData.load_from_csv('tej.csv')
-
-try:
-    finmind_data = LoadData.load_from_finmind(dt.datetime.now(ZoneInfo("Asia/Taipei")).date())
-except Exception as e:
-    st.error(f"Error loading data: {e}")
-    finmind_data = LoadData.load_from_csv('finmind_etf_20250101_20250123.csv')
+    st.stop()
 
 
 # ------------------------------------------------------------------------------------------------------
 # * Select Source
 cols = st.columns((1/3, 1/3, 1/3))
 with cols[0].container(border = True, height=100):
-    source = st.pills("資料來源（預設為 TEJ）", ["FinMind", "TEJ 台灣經濟新報"], selection_mode = 'single')
-
-
-if source == "FinMind":
-    data = finmind_data
-else:
-    data = tej_data
+    st.markdown(f"""
+        <div class="data-pair-container">
+            <div class="data-block">
+                <span class="data-number source">Yahoo Finance</span>
+                <span class="data-label time">Data source (DAX 40)</span>
+            </div>
+        </div>""", unsafe_allow_html = True)
 
 with cols[1].container(border = True, height=100):
     st.markdown(f"""
         <div class="data-pair-container">
             <div class="data-block">
                 <span class="data-number date">{data['date'].max().strftime("%Y-%m-%d")}</span>
-                <span class="data-label time">最新資料日期</span>
+                <span class="data-label time">Latest data date</span>
             </div>
         </div>""", unsafe_allow_html = True)
     
@@ -61,7 +54,7 @@ with cols[2].container(border = True, height=100):
         <div class="data-pair-container">
             <div class="data-block">
                 <span class="data-number date">{len(data)}</span>
-                <span class="data-label time">資料總筆數</span>
+                <span class="data-label time">Total rows</span>
             </div>
         </div>""", unsafe_allow_html = True)
 
@@ -69,7 +62,7 @@ with cols[2].container(border = True, height=100):
 # ------------------------------------------------------------------------------------------------------
 # * Top 5 Gainers K Bar (one day)
 def calculate_change(group):
-    # 檢查是否有足夠的資料列
+    # Make sure there are enough rows
     if len(group) < 2:
         return None 
     return pd.DataFrame({
@@ -90,7 +83,7 @@ def top_kbar(df):
 
     top5 = changes.sort_values(by = 'change', ascending=False).head(5)
 
-    st.subheader("最近一日漲幅前五名股票 K 線圖")
+    st.subheader("Top 5 Gainers of the Latest Day (Candlestick)")
     with st.container(border = True):
         cols = st.columns((0.2, 0.2, 0.2, 0.2, 0.2))
     for stock_id, col in zip(top5['stock_id'], cols):
@@ -104,7 +97,7 @@ def top_kbar(df):
                                     high=stock_data['max'],
                                     low=stock_data['min'],
                                     close=stock_data['close'],
-                                    increasing_line_color= 'red', decreasing_line_color= '#21CC54'
+                                    increasing_line_color= '#21CC54', decreasing_line_color= 'red'
                                     ), secondary_y=True)
         fig.update_layout(xaxis_rangeslider_visible = False,
                           margin=dict(l=0, r=0, t=0, b=0), height = 200)
@@ -118,34 +111,34 @@ def top_kbar(df):
 # * Single K bar (One year)
 @st.fragment
 def single_kbar(df):
-    st.subheader("單一標的 K 線圖與成交量")
+    st.subheader("Single Stock Candlestick and Volume")
     cols_1 = st.columns((0.2, 0.8))
 
     with cols_1[0]:
         with st.container(border = True, height = 180):
-            stock = st.selectbox("選擇標的", list(stocks.keys()),
+            stock = st.selectbox("Select stock", list(stocks.keys()),
                                 format_func = lambda x: f"{x} - {stocks[x]}"
                                 )
             df = df[df['stock_id'] == stock]
             
         
-            opts = st.pills("指標", ['價格 K 線', '成交量'], selection_mode = 'multi', default = ['價格 K 線', '成交量'])
+            opts = st.pills("Indicators", ['Price candlestick', 'Volume'], selection_mode = 'multi', default = ['Price candlestick', 'Volume'])
 
         with st.container(border = True, height = 253):
 
             df = df.sort_values(by='date', ascending=True)
             most_recents = df.iloc[len(df)-2:len(df), :]
             
-            st.metric("**:gray[最近一日成交量 (千股)]**", 
+            st.metric("**:gray[Latest volume (thousand shares)]**", 
                       most_recents.iloc[1]['Trading_Volume'],
                       most_recents.iloc[1]['Trading_Volume'] - most_recents.iloc[0]['Trading_Volume'],
-                      delta_color = "inverse",
+                      delta_color = "normal",
                       format = "localized"
                       )
-            st.metric("**:gray[最近一日收盤價]**", 
+            st.metric("**:gray[Latest close price]**", 
                       most_recents.iloc[1]['close'],
                       most_recents.iloc[1]['close'] - most_recents.iloc[0]['close'],
-                      delta_color = "inverse",
+                      delta_color = "normal",
                       format = "localized"
                       )
 
@@ -156,7 +149,7 @@ def single_kbar(df):
 
         fig = make_subplots(specs=[[{"secondary_y": True}]])
 
-        if "成交量"  in opts:
+        if "Volume" in opts:
 
             fig.add_trace(go.Bar(x=df['date'], 
                                  y=df['Trading_Volume'], 
@@ -164,7 +157,7 @@ def single_kbar(df):
                                  name='Volume', 
                                  opacity =0.5), secondary_y=False)
 
-        if "價格 K 線" in opts:
+        if "Price candlestick" in opts:
             fig.add_trace(go.Candlestick(
                                         x=df['date'],
                                         name='Price',
@@ -172,7 +165,7 @@ def single_kbar(df):
                                         high=df['max'],
                                         low=df['min'],
                                         close=df['close'],
-                                        increasing_line_color= 'red', decreasing_line_color= '#21CC54'
+                                        increasing_line_color= '#21CC54', decreasing_line_color= 'red'
                                         ), secondary_y=True)
 
 
@@ -185,17 +178,17 @@ def single_kbar(df):
 # * Normalized Close Price Comparison
 @st.fragment 
 def peer_comparison(df):
-    st.subheader("多重標的標準化收盤價比較圖（以所選期間起始日收盤價為基準）")
+    st.subheader("Normalized Close Price Comparison (relative to the first close of the selected period)")
 
     cols_2 = st.columns((0.2, 0.8))
 
     with cols_2[0]:
         with st.container(border = True, height = 400):
-            selected_stocks = st.multiselect("選擇標的", list(stocks.keys()),
-                                            default=["0050", "00663L"]
+            selected_stocks = st.multiselect("Select stocks", list(stocks.keys()),
+                                            default=["SAP.DE", "SIE.DE"]
                                             )
 
-            window = st.pills("選擇時間區間", [30, 90, 180, 365], default = 365, format_func= lambda x: ['1 month', '3 months', '6 months', '1 year'][[30, 90, 180, 365].index(x)])
+            window = st.pills("Select time window", [30, 90, 180, 365], default = 365, format_func= lambda x: ['1 month', '3 months', '6 months', '1 year'][[30, 90, 180, 365].index(x)])
     
 
 
@@ -204,20 +197,13 @@ def peer_comparison(df):
 
     with cols_2[1].container(border = True, height = 400):
         if window is None:
-            st.warning("請選擇一個時間區間") 
+            st.warning("Please select a time window") 
         else:
-            df = df[df['date'] >= df['date'].max() - pd.Timedelta(days=window)]
+            df = df[df['date'] >= df['date'].max() - dt.timedelta(days = int(window))]
             df = df[df['stock_id'].isin(selected_stocks)]
-            df = (df.groupby('stock_id')
-                .apply(lambda group: (group.sort_values(by='date', ascending=True)
-                                        .assign(close = lambda x: x['close'] / x['close'].iloc[0])
-                                        )
-                    )
-                    .reset_index(drop=True)
-                )
             df = df.sort_values(by='date', ascending=True)
+            df['close'] = df['close'] / df.groupby('stock_id')['close'].transform('first')
 
-            
             
             fig = px.line(df, x='date', y='close', color='stock_id')
             fig.update_layout(margin=dict(t=0), height = 380)

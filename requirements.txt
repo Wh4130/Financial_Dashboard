@@ -1,5 +1,0 @@
-FinMind
-tejapi
-dotenv
-plotly
-tqdm
